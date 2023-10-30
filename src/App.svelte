@@ -1,10 +1,41 @@
 <script>
-	let playStatus = "play_circle";
+	let playStatus = "play-outline";
 	let groupPlayStatus = [
-		"play_arrow",
-		"play_arrow",
-		"play_arrow"
-	]
+		"play-outline",
+		"play-outline",
+		"play-outline"
+	];
+	const numberOfLines = 80;
+	let sizes = new Array(numberOfLines).fill(30);
+	
+
+	window.addEventListener("load", () => {
+		const spectrumLines = document.getElementsByClassName("spectrum-line");
+		setInterval(() => {
+			for (let i = 0; i < spectrumLines.length; i++) {
+				if (i == 1) continue;
+				const max = 2;
+				const min = 0;
+				const random = Math.floor(Math.random() * (max - min + 1)) + min - (max / 2);
+				for (let near = -5; near <= 5; near++) {
+					const _near = i + near;
+					const nearIndex = _near < 0 ? numberOfLines - (-_near % numberOfLines) : _near % numberOfLines;
+					const target = spectrumLines[nearIndex];
+					console.log(near);
+
+					sizes[nearIndex] = Math.min(35, Math.max(18, sizes[nearIndex] + (random * (64 - near * near) / 64)));
+					const size = sizes[nearIndex];
+					target.style.width = `${size}%`;
+					target.style.transformOrigin = `calc(100% + ${50 - size} / ${size} * 100%)`;
+					target.style.transform = `rotate(calc(360deg / ${numberOfLines} * var(--i))) translate(calc(100% * (40 - ${size}) / ${size}))`;
+				}
+				
+				// line.style.width = `${size}%`;
+				// line.style.transformOrigin = `calc(100% + ${50 - size} / ${size} * 100%)`;
+				// line.style.transform = `rotate(calc(360deg / ${numberOfLines} * var(--i))) translate(calc(100% * (40 - ${size}) / ${size}))`;
+			}
+		}, 50)
+	});
 
 	/**
 	 * @returns {HTMLDivElement}
@@ -25,8 +56,8 @@
 	}
 
 	const clickPlayButton = () => {
-		if (playStatus === "play_circle") playStatus = "stop_circle";
-		else playStatus = "play_circle";
+		if (playStatus === "play-outline") playStatus = "stop-outline";
+		else playStatus = "play-outline";
 	}
 
 	/**
@@ -36,8 +67,8 @@
 		const element = eventData.target;
 		groupPlayStatus.forEach((_, index) => {
 			if (!element.classList.contains(index.toString())) return;
-			if (_ === "play_arrow") groupPlayStatus[index] = "stop";
-			else groupPlayStatus[index] = "play_arrow";
+			if (_ === "play-outline") groupPlayStatus[index] = "stop-outline";
+			else groupPlayStatus[index] = "play-outline";
 		});
 	}
 
@@ -61,7 +92,7 @@
 		 */
 		const menu = getMenu();
 		const element = eventData.target;
-
+		
 		if (menu.style.left == "0px") {
 			element.innerText = "menu";
 			menu.style.left = "-25vw";
@@ -70,6 +101,31 @@
 			element.innerText = "close";
 			menu.style.left = "0";
 		}
+	}
+	
+	/**
+	 * @param {Event} eventData 
+	 */
+	const move = (eventData) => {
+		const element = eventData.target;
+		const slider = document.querySelector(`label[for="${element.id}"] > .slider`);
+		
+		slider.style.left = `${20 * element.value - 20}%`;
+	}
+	
+	/**
+	 * @param {MouseEvent} eventData 
+	 */
+	const lock = (eventData) => {
+		/**
+		 * @type {HTMLDivElement}
+		 */
+		const element = eventData.target;
+
+		console.log("hi");
+
+		if (element.getAttribute("name") == "lock-open-outline") element.setAttribute("name", "lock-closed-outline");
+		else element.setAttribute("name", "lock-open-outline");
 	}
 </script>
 
@@ -83,7 +139,7 @@
 			</div>
 			<div id="button">
 				<img src="../images/settings.svg" alt="" id="settings" width="17px">
-				<img src="../images/close.svg" alt="" id="close" width="17px">
+				<img src="../images/close.svg" alt="" id="close" width="17px" on:mouseup={openMenu}>
 			</div>
 			<div id="signup-button">
 				<label for="">Sign up</label>
@@ -118,27 +174,20 @@
 
 	<nav>
 		<section id="menu-section">
-			<span class="material-symbols-outlined" id="menu-button" on:mouseup={openMenu}>
-				menu
-			</span>
+			<ion-icon name="menu-outline" id="menu-button" on:mouseup={openMenu}></ion-icon>
 		</section>
 		<section id="play-section">
-			<span class="material-symbols-outlined" id="play-button" on:mouseup={clickPlayButton}>
+			<!-- <span class="material-symbols-outlined" id="play-button" on:mouseup={clickPlayButton}>
 				{playStatus}
-			</span>
+			</span> -->
+			<ion-icon name={playStatus} id="play-button" on:mouseup={clickPlayButton}></ion-icon>
 		</section>
 		<section id="undo-section">
-			<span class="material-symbols-outlined">
-				undo
-			</span>
-			<span class="material-symbols-outlined">
-				redo
-			</span>
+			<ion-icon name="arrow-back-outline"></ion-icon>
+			<ion-icon name="arrow-forward-outline"></ion-icon>
 		</section>
 		<section id="setting-section">
-			<span class="material-symbols-outlined">
-				public
-			</span>
+			<ion-icon name="earth-outline"></ion-icon>
 		</section>
 		
 
@@ -152,7 +201,91 @@
 				<div></div>
 			</div>
 			<div id="loop-station">
-				<div style="--color: #b96bc6"></div>
+				<div style="--color: #b96bc6" id="fake">
+					<div id="spectrum">
+					</div>
+					<div class="spectrum-line" style="--i: 0"></div>
+					<div class="spectrum-line" style="--i: 1"></div>
+					<div class="spectrum-line" style="--i: 2"></div>
+					<div class="spectrum-line" style="--i: 3"></div>
+					<div class="spectrum-line" style="--i: 4"></div>
+					<div class="spectrum-line" style="--i: 5"></div>
+					<div class="spectrum-line" style="--i: 6"></div>
+					<div class="spectrum-line" style="--i: 7"></div>
+					<div class="spectrum-line" style="--i: 8"></div>
+					<div class="spectrum-line" style="--i: 9"></div>
+					<div class="spectrum-line" style="--i: 10"></div>
+					<div class="spectrum-line" style="--i: 11"></div>
+					<div class="spectrum-line" style="--i: 12"></div>
+					<div class="spectrum-line" style="--i: 13"></div>
+					<div class="spectrum-line" style="--i: 14"></div>
+					<div class="spectrum-line" style="--i: 15"></div>
+					<div class="spectrum-line" style="--i: 16"></div>
+					<div class="spectrum-line" style="--i: 17"></div>
+					<div class="spectrum-line" style="--i: 18"></div>
+					<div class="spectrum-line" style="--i: 19"></div>
+					<div class="spectrum-line" style="--i: 20"></div>
+					<div class="spectrum-line" style="--i: 21"></div>
+					<div class="spectrum-line" style="--i: 22"></div>
+					<div class="spectrum-line" style="--i: 23"></div>
+					<div class="spectrum-line" style="--i: 24"></div>
+					<div class="spectrum-line" style="--i: 25"></div>
+					<div class="spectrum-line" style="--i: 26"></div>
+					<div class="spectrum-line" style="--i: 27"></div>
+					<div class="spectrum-line" style="--i: 28"></div>
+					<div class="spectrum-line" style="--i: 29"></div>
+					<div class="spectrum-line" style="--i: 30"></div>
+					<div class="spectrum-line" style="--i: 31"></div>
+					<div class="spectrum-line" style="--i: 32"></div>
+					<div class="spectrum-line" style="--i: 33"></div>
+					<div class="spectrum-line" style="--i: 34"></div>
+					<div class="spectrum-line" style="--i: 35"></div>
+					<div class="spectrum-line" style="--i: 36"></div>
+					<div class="spectrum-line" style="--i: 37"></div>
+					<div class="spectrum-line" style="--i: 38"></div>
+					<div class="spectrum-line" style="--i: 39"></div>
+					<div class="spectrum-line" style="--i: 40"></div>
+					<div class="spectrum-line" style="--i: 41"></div>
+					<div class="spectrum-line" style="--i: 42"></div>
+					<div class="spectrum-line" style="--i: 43"></div>
+					<div class="spectrum-line" style="--i: 44"></div>
+					<div class="spectrum-line" style="--i: 45"></div>
+					<div class="spectrum-line" style="--i: 46"></div>
+					<div class="spectrum-line" style="--i: 47"></div>
+					<div class="spectrum-line" style="--i: 48"></div>
+					<div class="spectrum-line" style="--i: 49"></div>
+					<div class="spectrum-line" style="--i: 50"></div>
+					<div class="spectrum-line" style="--i: 51"></div>
+					<div class="spectrum-line" style="--i: 52"></div>
+					<div class="spectrum-line" style="--i: 53"></div>
+					<div class="spectrum-line" style="--i: 54"></div>
+					<div class="spectrum-line" style="--i: 55"></div>
+					<div class="spectrum-line" style="--i: 56"></div>
+					<div class="spectrum-line" style="--i: 57"></div>
+					<div class="spectrum-line" style="--i: 58"></div>
+					<div class="spectrum-line" style="--i: 59"></div>
+					<div class="spectrum-line" style="--i: 60"></div>
+					<div class="spectrum-line" style="--i: 61"></div>
+					<div class="spectrum-line" style="--i: 62"></div>
+					<div class="spectrum-line" style="--i: 63"></div>
+					<div class="spectrum-line" style="--i: 64"></div>
+					<div class="spectrum-line" style="--i: 65"></div>
+					<div class="spectrum-line" style="--i: 66"></div>
+					<div class="spectrum-line" style="--i: 67"></div>
+					<div class="spectrum-line" style="--i: 68"></div>
+					<div class="spectrum-line" style="--i: 69"></div>
+					<div class="spectrum-line" style="--i: 70"></div>
+					<div class="spectrum-line" style="--i: 71"></div>
+					<div class="spectrum-line" style="--i: 72"></div>
+					<div class="spectrum-line" style="--i: 73"></div>
+					<div class="spectrum-line" style="--i: 74"></div>
+					<div class="spectrum-line" style="--i: 75"></div>
+					<div class="spectrum-line" style="--i: 76"></div>
+					<div class="spectrum-line" style="--i: 77"></div>
+					<div class="spectrum-line" style="--i: 78"></div>
+					<div class="spectrum-line" style="--i: 79"></div>
+					<div id="black"></div>
+				</div>
 				<div style="--color: #b96bc6"></div>
 				<div style="--color: #b96bc6"></div>
 				<div style="--color: #5696d8"></div>
@@ -168,9 +301,7 @@
 						<span>sound<br>group 1</span>
 					</div>
 					<div class="group-player-bottom">
-						<span class="material-symbols-outlined group-player-icon 0" on:mousedown={clickGroupPlayButton}>
-							{groupPlayStatus[0]}
-						</span>
+						<ion-icon name={groupPlayStatus[0]} class="group-player-icon 0" on:mouseup={clickGroupPlayButton}></ion-icon>
 						<span>play</span>
 					</div>
 				</div>
@@ -179,9 +310,7 @@
 						<span>sound<br>group 2</span>
 					</div>
 					<div class="group-player-bottom">
-						<span class="material-symbols-outlined group-player-icon 1" on:mousedown={clickGroupPlayButton}>
-							{groupPlayStatus[1]}
-						</span>
+						<ion-icon name={groupPlayStatus[1]} class="group-player-icon 1" on:mouseup={clickGroupPlayButton}></ion-icon>
 						<span>play</span>
 					</div>
 				</div>
@@ -190,9 +319,7 @@
 						<span>sound<br>group 3</span>
 					</div>
 					<div class="group-player-bottom">
-						<span class="material-symbols-outlined group-player-icon 2" on:mousedown={clickGroupPlayButton}>
-							{groupPlayStatus[2]}
-						</span>
+						<ion-icon name={groupPlayStatus[2]} class="group-player-icon 2" on:mouseup={clickGroupPlayButton}></ion-icon>
 						<span>play</span>
 					</div>
 				</div>
@@ -220,6 +347,56 @@
 					</label>
 				</div>
 			</header>
+			<div id="effect-body">
+				<label for="pitch">
+					<hr style="--i: 0">
+					<hr style="--i: 1">
+					<hr style="--i: 2">
+					<hr style="--i: 3">
+					<input id="pitch" type="range" min="1" max="5" value="1" on:input={move}>
+					<div class="slider">
+						<hr class="row">
+						<hr class="column">
+						<div class="text">
+							pitch
+						</div>
+						<ion-icon name="lock-open-outline" on:mouseup={lock}></ion-icon>
+						<ion-icon name="move-outline"></ion-icon>
+					</div>
+				</label>
+				<label for="filter">
+					<hr style="--i: 0">
+					<hr style="--i: 1">
+					<hr style="--i: 2">
+					<hr style="--i: 3">
+					<input id="filter" type="range" min="1" max="5" value="1" on:input={move}>
+					<div class="slider">
+						<hr class="row">
+						<hr class="column">
+						<div class="text">
+							filter
+						</div>
+						<ion-icon name="lock-open-outline" on:mouseup={lock}></ion-icon>
+						<ion-icon name="move-outline"></ion-icon>
+					</div>
+				</label>
+				<label for="reverb">
+					<hr style="--i: 0">
+					<hr style="--i: 1">
+					<hr style="--i: 2">
+					<hr style="--i: 3">
+					<input id="reverb" type="range" min="1" max="5" value="1" on:input={move}>
+					<div class="slider">
+						<hr class="row">
+						<hr class="column">
+						<div class="text">
+							reverb
+						</div>
+						<ion-icon name="lock-open-outline" on:mouseup={lock}></ion-icon>
+						<ion-icon name="move-outline"></ion-icon>
+					</div>
+				</label>
+			</div>
 		</div>
 	</div>
 </main>
@@ -257,8 +434,11 @@
 		align-items: center;
 	}
 
-	#menu-section {
-		z-index: 1;
+	nav ion-icon {
+		font-size: calc(var(--nav-height) - 5vh);
+		margin-left: 4vh;
+
+		color: white;
 	}
 
 	#undo-section {
@@ -351,6 +531,9 @@
 	}
 
 	.group-player {
+		display: grid;
+		grid-template-rows: 4.5fr 5.5fr;
+
 		width: 100%;
 		height: 90%;
 
@@ -366,7 +549,7 @@
 		align-items: center;
 		
 		width: 100%;
-		height: 45%;
+		height: 100%;
 
 		text-align: center;
 		text-transform: uppercase;
@@ -383,13 +566,15 @@
 		align-items: center;
 
 		width: 100%;
-		height: fit-content;
+		height: 100%;
 	}
 
 	.group-player-icon {
 		position: relative;
 		margin: 0;
 		margin-top: 1.2vh;
+		font-size: 22px;
+		color: white;
 	}
 
 	.group-player-icon + span {
@@ -413,6 +598,116 @@
 		margin-top: 2vw;
 
 		width: 85%;
+	}
+
+	#effect-body {
+		display: grid;
+		grid-template-rows: repeat(3, 1fr);
+		gap: 1vw;
+
+		margin: 2vw 0;
+
+		width: 85%;
+		height: 100%;
+	}
+
+	#effect-body > label {
+
+		position: relative;
+
+		background: var(--nav-color);
+		border-radius: 15px;
+	}
+
+	#effect-body > label > input {
+		position: absolute;
+		left: 7.5%;
+		top: 0;
+		
+		width: 85%;
+		height: 100%;
+
+		opacity: 0;
+	}
+
+	#effect-body > label > hr {
+		position: absolute;
+		left: calc(20% * var(--i) + 20%);
+		top: 25%;
+
+		width: 1px;
+		height: 50%;
+
+		background: #ffffff55;
+		border: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.slider {
+		display: grid;
+		grid-template-rows: 1fr 1fr;
+		grid-template-columns: 1fr 1fr;
+		justify-items: center;
+		align-items: center;
+
+		position: absolute;
+		left: 0;
+		top: 0;
+
+		width: 20%;
+		height: 100%;
+
+		background: #231a3d;
+		border-radius: 15px;
+		border: 0.5px solid #ffffff99;
+
+		color: white;
+		text-transform: uppercase;
+		font-size: 11px;
+
+		transition: .2s;
+	}
+
+	.slider > ion-icon {
+		font-size: 14px;
+
+		transition: .2s;
+	}
+
+	.slider > ion-icon:hover {
+		transform: scale(1.2);
+	}
+
+	.slider > .row {
+		position: absolute;
+		left: 0;
+		top: calc(50% - 0.5px);
+		margin: 0;
+
+		width: 100%;
+		height: 1px;
+
+		background: #ffffff22;
+		border: none;
+	}
+
+	.slider > .column {
+		position: absolute;
+		left: calc(50% - 0.5px);
+		top: calc(50% + 1px);
+		margin: 0;
+
+		width: 1px;
+		height: calc(50% - 1px);
+
+		background: #ffffff22;
+		border: none;
+	}
+
+	.slider > .text {
+		grid-column: 1 / 3;
+
 	}
 
 	#speaker-button {
@@ -595,5 +890,53 @@
 	#menu-logo {
 		position: relative;
 		top: 9vh;
+	}
+
+
+	/* fake */
+
+	#spectrum {
+		position: relative;
+		left: 25%;
+		top: 25%;
+
+		width: 50%;
+		height: 50%;
+
+		background: #ffffff22;
+		border-radius: 50%;
+	}
+
+	.spectrum-line {
+
+		position: absolute;
+		width: 30%;
+		height: 1px;
+
+
+		background: rgb(255, 218, 251);
+		transform-origin: calc(100% + 2 / 3 * 100%);
+		transform: rotate(calc(360deg / 80 * var(--i))) translateX(calc(100% * 1 / 3));
+		/* rotate(calc(360deg / 40 * var(--43i))) */
+		/* translateX(calc(100% * 1 / 3)) */
+	}
+
+	#loop-station > div:nth-child(1) {
+		box-shadow: 0 0 20px rgb(217, 0, 255);
+	}
+
+	#black {
+		position: absolute;
+
+		left: 50%;
+		top: 50%;
+
+		width: 50%;
+		height: 50%;
+
+		background: #000;
+
+		transform: translate(-50%, -50%);
+		border-radius: 100%;
 	}
 </style>
